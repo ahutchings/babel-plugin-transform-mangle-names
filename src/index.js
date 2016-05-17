@@ -46,7 +46,7 @@ export default function({ types: t }) {
      */
     ['ArrowFunctionExpression|ClassMethod|FunctionDeclaration|FunctionExpression']({ node, scope }) {
       node.params.forEach(param => {
-        if (param.name.length > 1) {
+        if (t.isIdentifier(param) && param.name.length > 1) {
           const newName = generateVariableName(scope);
           if (newName.length < param.name.length) {
             scope.rename(param.name, newName);
@@ -76,7 +76,7 @@ export default function({ types: t }) {
     VariableDeclarator({ node, scope }) {
       if (!t.isFunctionExpression(node.init) && !t.isArrowFunctionExpression(node.init)) {
         // No point trying to shorten names of one character
-        if (node.id.name.length > 1) {
+        if (t.isIdentifier(node.id) && node.id.name.length > 1) {
           const newName = generateVariableName(scope);
           // Keep the existing name if it's shorter. This will happen if there
           // are a lot of varaibles in scope
