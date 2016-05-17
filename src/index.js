@@ -30,6 +30,9 @@ export default function({ types: t }) {
       if(t.isIdentifier(element)) {
         const newName = generateVariableName(scope);
         scope.rename(element.name, newName);
+      } else if (t.isRestElement(element)) {
+        const newName = generateVariableName(scope);
+        scope.rename(element.argument.name, newName);
       }
     });
   }
