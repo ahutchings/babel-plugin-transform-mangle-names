@@ -24,14 +24,16 @@ function generateVariableName(scope) {
 }
 
 /**
- * Renames an identifier if the new name is shorter than the previous.
+ * Renames an identifier with a unique short name
  * @param  {Scope} scope
  * @param  {string} previousName
- * @param  {string} nextName
  */
-function renameIfShorter(scope, previousName, nextName) {
-  if(nextName.length < previousName.length) {
-    scope.rename(previousName, nextName);
+function rename(scope, previousName) {
+  if(previousName.length > 1) {
+    const nextName = generateVariableName(scope);
+    if(nextName.length < previousName.length) {
+      scope.rename(previousName, nextName);
+    }
   }
 }
 
@@ -41,9 +43,9 @@ export default function({ types: t }) {
     node.elements.forEach(element => {
       const newName = generateVariableName(scope);
       if(t.isIdentifier(element)) {
-        renameIfShorter(scope, element.name, newName);
+        rename(scope, element.name, newName);
       } else if (t.isRestElement(element)) {
-        renameIfShorter(scope, element.argument.name, newName);
+        rename(scope, element.argument.name, newName);
       } else if (t.isAssignmentPattern(element)) {
         renameAssignmentIdentifier(scope, element);
       }
@@ -52,7 +54,7 @@ export default function({ types: t }) {
 
   function renameAssignmentIdentifier(scope, node) {
     const newName = generateVariableName(scope);
-    renameIfShorter(scope, node.left.name, newName);
+    rename(scope, node.left.name, newName);
   }
 
   const functionVisitor = {
@@ -77,9 +79,9 @@ export default function({ types: t }) {
      */
     ['ArrowFunctionExpression|ClassMethod|FunctionDeclaration|FunctionExpression']({ node, scope }) {
       node.params.forEach(paramNode => {
-        if (t.isIdentifier(paramNode) && paramNode.name.length > 1) {
+        if (t.isIdentifier(paramNode)) {
           const newName = generateVariableName(scope);
-          renameIfShorter(scope, paramNode.name, newName);
+          rename(scope, paramNode.name, newName);
         } else if (t.isArrayPattern(paramNode)) {
           renameArrayPatternIdentifiers(scope, paramNode);
         } else if (t.isAssignmentPattern(paramNode)) {
@@ -109,9 +111,9 @@ export default function({ types: t }) {
     VariableDeclarator({ node, scope }) {
       if (!t.isFunctionExpression(node.init) && !t.isArrowFunctionExpression(node.init)) {
         // No point trying to shorten names of one character);
-        if (t.isIdentifier(node.id) && node.id.name.length > 1) {
+        if (t.isIdentifier(node.id)) {
           const newName = generateVariableName(scope);
-          renameIfShorter(scope, node.id.name, newName);
+          rename(scope, node.id.name, newName);
         } else if (t.isArrayPattern(node.id)) {
           renameArrayPatternIdentifiers(scope, node.id);
         }
