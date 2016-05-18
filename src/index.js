@@ -23,7 +23,40 @@ function generateVariableName(scope) {
   return uid;
 }
 
+/**
+ * Renames an identifier with a unique short name
+ * @param  {Scope} scope
+ * @param  {string} previousName
+ */
+function rename(scope, previousName) {
+  if(previousName.length > 1) {
+    const nextName = generateVariableName(scope);
+    if(nextName.length < previousName.length) {
+      scope.rename(previousName, nextName);
+    }
+  }
+}
+
 export default function({ types: t }) {
+
+  function renameArrayPatternIdentifiers(scope, node) {
+    node.elements.forEach(element => {
+      const newName = generateVariableName(scope);
+      if(t.isIdentifier(element)) {
+        rename(scope, element.name, newName);
+      } else if (t.isRestElement(element)) {
+        rename(scope, element.argument.name, newName);
+      } else if (t.isAssignmentPattern(element)) {
+        renameAssignmentIdentifier(scope, element);
+      }
+    });
+  }
+
+  function renameAssignmentIdentifier(scope, node) {
+    const newName = generateVariableName(scope);
+    rename(scope, node.left.name, newName);
+  }
+
   const functionVisitor = {
     /**
      * Works on different types of function nodes to shorten parameter names.
@@ -45,12 +78,14 @@ export default function({ types: t }) {
      * function myFunc(long1, long2) {…}     // function myFunc(a, b) {…}
      */
     ['ArrowFunctionExpression|ClassMethod|FunctionDeclaration|FunctionExpression']({ node, scope }) {
-      node.params.forEach(param => {
-        if (param.name.length > 1) {
+      node.params.forEach(paramNode => {
+        if (t.isIdentifier(paramNode)) {
           const newName = generateVariableName(scope);
-          if (newName.length < param.name.length) {
-            scope.rename(param.name, newName);
-          }
+          rename(scope, paramNode.name, newName);
+        } else if (t.isArrayPattern(paramNode)) {
+          renameArrayPatternIdentifiers(scope, paramNode);
+        } else if (t.isAssignmentPattern(paramNode)) {
+          renameAssignmentIdentifier(scope, paramNode);
         }
       });
     }
@@ -75,14 +110,12 @@ export default function({ types: t }) {
      */
     VariableDeclarator({ node, scope }) {
       if (!t.isFunctionExpression(node.init) && !t.isArrowFunctionExpression(node.init)) {
-        // No point trying to shorten names of one character
-        if (node.id.name.length > 1) {
+        // No point trying to shorten names of one character);
+        if (t.isIdentifier(node.id)) {
           const newName = generateVariableName(scope);
-          // Keep the existing name if it's shorter. This will happen if there
-          // are a lot of varaibles in scope
-          if (newName.length < node.id.name.length) {
-            scope.rename(node.id.name, newName);
-          }
+          rename(scope, node.id.name, newName);
+        } else if (t.isArrayPattern(node.id)) {
+          renameArrayPatternIdentifiers(scope, node.id);
         }
       }
     }
