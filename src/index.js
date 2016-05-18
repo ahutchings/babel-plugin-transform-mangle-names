@@ -23,15 +23,27 @@ function generateVariableName(scope) {
   return uid;
 }
 
+/**
+ * Renames an identifier if the new name is shorter than the previous.
+ * @param  {Scope} scope
+ * @param  {string} previousName
+ * @param  {string} nextName
+ */
+function renameIfShorter(scope, previousName, nextName) {
+  if(nextName.length < previousName.length) {
+    scope.rename(previousName, nextName);
+  }
+}
+
 export default function({ types: t }) {
 
   function renameArrayPatternIdentifiers(scope, node) {
     node.elements.forEach(element => {
       const newName = generateVariableName(scope);
       if(t.isIdentifier(element)) {
-        scope.rename(element.name, newName);
+        renameIfShorter(scope, element.name, newName);
       } else if (t.isRestElement(element)) {
-        scope.rename(element.argument.name, newName);
+        renameIfShorter(scope, element.argument.name, newName);
       } else if (t.isAssignmentPattern(element)) {
         renameAssignmentIdentifier(scope, element);
       }
@@ -40,7 +52,7 @@ export default function({ types: t }) {
 
   function renameAssignmentIdentifier(scope, node) {
     const newName = generateVariableName(scope);
-    scope.rename(node.left.name, newName);
+    renameIfShorter(scope, node.left.name, newName);
   }
 
   const functionVisitor = {
@@ -67,9 +79,7 @@ export default function({ types: t }) {
       node.params.forEach(paramNode => {
         if (t.isIdentifier(paramNode) && paramNode.name.length > 1) {
           const newName = generateVariableName(scope);
-          if (newName.length < paramNode.name.length) {
-            scope.rename(paramNode.name, newName);
-          }
+          renameIfShorter(scope, paramNode.name, newName);
         } else if (t.isArrayPattern(paramNode)) {
           renameArrayPatternIdentifiers(scope, paramNode);
         } else if (t.isAssignmentPattern(paramNode)) {
@@ -101,11 +111,7 @@ export default function({ types: t }) {
         // No point trying to shorten names of one character);
         if (t.isIdentifier(node.id) && node.id.name.length > 1) {
           const newName = generateVariableName(scope);
-          // Keep the existing name if it's shorter. This will happen if there
-          // are a lot of varaibles in scope
-          if (newName.length < node.id.name.length) {
-            scope.rename(node.id.name, newName);
-          }
+          renameIfShorter(scope, node.id.name, newName);
         } else if (t.isArrayPattern(node.id)) {
           renameArrayPatternIdentifiers(scope, node.id);
         }
