@@ -27,14 +27,20 @@ export default function({ types: t }) {
 
   function renameArrayPatternIdentifiers(scope, node) {
     node.elements.forEach(element => {
+      const newName = generateVariableName(scope);
       if(t.isIdentifier(element)) {
-        const newName = generateVariableName(scope);
         scope.rename(element.name, newName);
       } else if (t.isRestElement(element)) {
-        const newName = generateVariableName(scope);
         scope.rename(element.argument.name, newName);
+      } else if (t.isAssignmentPattern(element)) {
+        renameAssignmentIdentifier(scope, element);
       }
     });
+  }
+
+  function renameAssignmentIdentifier(scope, node) {
+    const newName = generateVariableName(scope);
+    scope.rename(node.left.name, newName);
   }
 
   const functionVisitor = {
@@ -66,6 +72,8 @@ export default function({ types: t }) {
           }
         } else if (t.isArrayPattern(paramNode)) {
           renameArrayPatternIdentifiers(scope, paramNode);
+        } else if (t.isAssignmentPattern(paramNode)) {
+          renameAssignmentIdentifier(scope, paramNode);
         }
       });
     }
