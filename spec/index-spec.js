@@ -4,10 +4,6 @@ import fs from 'fs';
 import path from 'path';
 import reactPlugin from '../src/index';
 
-function trim(str) {
-  return str.replace(/^\s+|\s+$/, '');
-}
-
 describe('mangle names', () => {
   const fixturesDir = path.join(__dirname, 'fixtures');
   fs.readdirSync(fixturesDir).forEach((caseName) => {
@@ -19,9 +15,10 @@ describe('mangle names', () => {
           reactPlugin
         ]
       }).code;
+
       const expected = fs.readFileSync(path.join(fixtureDir, 'expected.js')).toString();
 
-      assert.equal(trim(actual), trim(expected));
+      assert.equal(actual.trim(), expected.trim());
     });
   });
 });
