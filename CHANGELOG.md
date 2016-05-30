@@ -1,3 +1,11 @@
+2016-05-30 v2.1.1
+=================
+
+### Fixes
+
+* Refactored back to just using one traversal as it seems to then handle variables in child scopes better
+* Added tests
+
 2016-05-18 v2.1.0
 =================
 
