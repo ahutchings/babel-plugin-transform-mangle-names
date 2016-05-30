@@ -1,7 +1,7 @@
 var a = 1;
 
-function testFunc(c, d, e) {
-  return c + d + e + a;
+function testFunc(b, c, d) {
+  return b + c + d + a;
 }
 
 var b = 2;

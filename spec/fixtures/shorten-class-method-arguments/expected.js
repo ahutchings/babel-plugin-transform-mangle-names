@@ -1,11 +1,11 @@
 class Gorilla {
-  constructor(b, c) {
-    this.name = b;
-    this.jungle = c;
+  constructor(a, b) {
+    this.name = a;
+    this.jungle = b;
   }
 
-  eat(b) {
-    console.log(`just eating my ${ b } in the ${ this.jungle } jungle!`);
+  eat(a) {
+    console.log(`just eating my ${ a } in the ${ this.jungle } jungle!`);
   }
 }
 
