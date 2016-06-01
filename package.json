@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-transform-mangle-names",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "A JavaScript name mangler plugin for Babel",
   "main": "lib/index.js",
   "scripts": {

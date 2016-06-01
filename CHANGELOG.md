@@ -1,3 +1,10 @@
+2016-06-01 v2.1.2
+=================
+
+### Fixes
+
+* Saves new variable names on `Program` to avoid clashes
+
 2016-05-30 v2.1.1
 =================
 
