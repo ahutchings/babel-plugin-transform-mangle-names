@@ -20,6 +20,10 @@ function generateVariableName(scope) {
     i++;
   } while (scope.hasBinding(uid) || scope.hasGlobal(uid) || scope.hasReference(uid));
 
+  const program = scope.getProgramParent();
+  program.references[uid] = true;
+  program.uids[uid] = true;
+
   return uid;
 }
 

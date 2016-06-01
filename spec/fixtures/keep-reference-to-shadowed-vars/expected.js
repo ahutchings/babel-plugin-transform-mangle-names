@@ -1,7 +1,7 @@
-const a = 4;
+function add(a, b, c) {
+  return a + b + c;
+}
 
-function add(b, c, d) {
-  return b + c + d;
-};
+var d = 4;
 
 add(1, 2, 3);

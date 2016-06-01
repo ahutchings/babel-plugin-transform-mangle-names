@@ -4,10 +4,10 @@ class Gorilla {
     this.jungle = b;
   }
 
-  eat(a) {
-    console.log(`just eating my ${ a } in the ${ this.jungle } jungle!`);
+  eat(c) {
+    console.log(`just eating my ${ c } in the ${ this.jungle } jungle!`);
   }
 }
 
-const a = new Gorilla('Shabani', 'Congo');
-a.eat('banana');
+const d = new Gorilla('Shabani', 'Congo');
+d.eat('banana');

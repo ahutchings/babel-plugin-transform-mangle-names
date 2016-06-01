@@ -4,4 +4,4 @@ function testFunc(b, c, d) {
   return b + c + d + a;
 }
 
-var b = 2;
+var e = 2;
